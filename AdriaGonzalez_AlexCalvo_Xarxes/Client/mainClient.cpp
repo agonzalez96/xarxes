@@ -40,29 +40,18 @@ int main()
 {
 	char data[100];
 	std::string textoAEnviar;
-	std::cout << "¿Quieres empezar? y/n ... ";
-	char c;
-	std::cin >> c;
-	sf::TcpSocket socket;
-	if (c == 'n')
-	{
-		exit(0);
-	}
-	else if (c == 'y')
-	{
-		sf::Socket::Status status_sc = socket.connect("localhost", 50000, sf::milliseconds(5.f));
-		if (status_sc != sf::Socket::Done) {
-			std::cout << "i couldn't connect to server" << std::endl;
-		}
-		else {
-			std::cout << "connected to server" << std::endl;
-		}
 
+	sf::TcpSocket socket;
+
+
+	sf::Socket::Status status_sc = socket.connect("localhost", 50000, sf::milliseconds(5.f));
+	if (status_sc != sf::Socket::Done) {
+		std::cout << "i couldn't connect to server" << std::endl;
 	}
-	else
-	{
-		exit(0);
+	else {
+		std::cout << "connected to server" << std::endl;
 	}
+
 
 	std::vector<string> aMensajes;
 
@@ -171,5 +160,6 @@ int main()
 		window.clear();
 	}
 	socket.disconnect();
+
 	return 0;
 }
