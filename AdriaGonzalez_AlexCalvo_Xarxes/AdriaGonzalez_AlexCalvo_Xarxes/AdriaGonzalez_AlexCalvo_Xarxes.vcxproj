@@ -23,6 +23,7 @@
     <ProjectGuid>{E9A77E4D-94F5-4D8A-9E9B-EA2DF272CD75}</ProjectGuid>
     <RootNamespace>AdriaGonzalez_AlexCalvo_Xarxes</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>Chat_Taller1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
