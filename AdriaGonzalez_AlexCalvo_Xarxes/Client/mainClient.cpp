@@ -11,47 +11,67 @@ using namespace std;
 
 void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	while (true) {
-		char buffer[100];
+
+		sf::Packet infoPack;
 		std::size_t bytesReceived;
-		sf::Socket::Status status_r = socket->receive(buffer, sizeof(buffer), bytesReceived);
+		sf::Socket::Status status_r = socket->receive(infoPack);
 		if (status_r == Socket::NotReady) {
 
 			continue;
 		}
-		else if (status_r != sf::Socket::Done)
-		{
-			//std::cout << "failed to receive data" << std::endl;
-		}
+	
 		else if (status_r == sf::Socket::Disconnected) {
 			break;
 		}
 		else if (status_r == Socket::Done)
 		{
-			//FUNCIONA
-			buffer[bytesReceived] = '\0';
-			aMensajes->push_back(buffer);
+			string str;
+			infoPack >> str;
+			aMensajes->push_back(str);
 		}
 	}
-
-
 }
 
 int main()
 {
-	char data[100];
-	std::string textoAEnviar;
+	cout << "Enter your nickname: ";
+	string nickname;
+	cin >> nickname;
+	cout << endl;
 
 	sf::TcpSocket socket;
+	char connectionType, mode;
+	char buffer[100];
+	std::size_t received;
+	std::string text = "Connected to: ";
 
+	if (!nickname.empty())
+	{
+		//CAS CLIENT
+		sf::Socket::Status status_c = socket.connect("localhost", 50000, sf::milliseconds(5.f));
+		if (status_c != sf::Socket::Done) {
+			std::cout << "i couldn't connect to server" << std::endl;
+		}
+		else {
+			std::cout << "connected to server" << std::endl;
+		}
 
-	sf::Socket::Status status_sc = socket.connect("localhost", 50000, sf::milliseconds(5.f));
-	if (status_sc != sf::Socket::Done) {
-		std::cout << "i couldn't connect to server" << std::endl;
+		if (status_c != Socket::Done)
+		{
+			cout << "No se ha podido conectar" << endl;
+		}
+		else
+		{
+
+			Packet nickPack;
+			nickPack << nickname;
+
+			Socket::Status nickInfo = socket.send(nickPack);
+			//cout << "Me he conectado " << socket.getRemotePort() << endl;
+		}
 	}
-	else {
-		std::cout << "connected to server" << std::endl;
-	}
 
+	char data[100];
 
 	std::vector<string> aMensajes;
 
@@ -105,19 +125,17 @@ int main()
 					aMensajes.push_back(mensaje);
 
 					//SEND DEL MESSAGE
-					Socket::Status status2 = socket.send(mensaje.c_str(), mensaje.length());
+
+					Packet packet;
+					packet << mensaje;
+
+					Socket::Status status2 = socket.send(packet);
 
 					if (status2 != Socket::Done)
 					{
 						cout << "Ha fallado el envio de datos" << endl;
 
 					}
-
-					else {
-						textoAEnviar = mensaje;
-						//socket.send(textoAEnviar.c_str(), textoAEnviar.length());
-					}
-
 
 					if (aMensajes.size() > 25)
 					{
@@ -159,7 +177,25 @@ int main()
 		window.display();
 		window.clear();
 	}
+	if (!window.isOpen())
+	{
+		Packet sendLogout;
+		sendLogout << "logOut_" + nickname;
+
+		Socket::Status logOutStatus = socket.send(sendLogout);
+		if (logOutStatus != Socket::Done) {
+
+			cout << "No sha enviat el packet" << endl;
+		}
+		else
+		{
+			cout << "Si que sha enviat" << endl;
+		}
+	}
 	socket.disconnect();
+
+	t1.join();
 
 	return 0;
 }
+
