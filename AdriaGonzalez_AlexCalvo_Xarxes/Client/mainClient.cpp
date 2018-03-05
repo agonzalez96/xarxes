@@ -129,6 +129,11 @@ int main()
 					Packet packet;
 					packet << mensaje;
 
+					if (mensaje == ">exit" || mensaje == " >exit") {
+						window.close();
+						exit(0);
+					}
+
 					Socket::Status status2 = socket.send(packet);
 
 					if (status2 != Socket::Done)
@@ -158,14 +163,6 @@ int main()
 		//RECEIVE
 		for (size_t i = 0; i < aMensajes.size(); i++)
 		{
-			if (aMensajes[i] == ">exit") {
-				window.close();
-				exit(0);
-			}
-			else if (aMensajes[i] == " >exit") {
-				window.close();
-				exit(0);
-			}
 			std::string chatting = aMensajes[i];
 			chattingText.setPosition(sf::Vector2f(0, 20 * i));
 			chattingText.setString(chatting);
