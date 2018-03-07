@@ -10,27 +10,37 @@ using namespace sf;
 using namespace std;
 
 void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
+	//TcpSocket* client = new TcpSocket;
 	while (true) {
 
 		sf::Packet infoPack;
 		std::size_t bytesReceived;
+		// Aqui pot rebre un packet amb la ip i el port
+		// Cada packet crea un socket
+		// Packet ip, port;
 		sf::Socket::Status status_r = socket->receive(infoPack);
 		if (status_r == Socket::NotReady) {
-
 			continue;
 		}
-	
 		else if (status_r == sf::Socket::Disconnected) {
 			break;
 		}
 		else if (status_r == Socket::Done)
 		{
+			// socket per cada nou client rebut
+
+			//status = client.recive(ip)
+			
+			//client.connect(ip,50000,sf::milliseconds(5.f));
+
+
 			string str;
 			infoPack >> str;
 			aMensajes->push_back(str);
+			
 		}
 	}
-}
+} 
 
 int main()
 {
@@ -44,10 +54,12 @@ int main()
 	char buffer[100];
 	std::size_t received;
 	std::string text = "Connected to: ";
-
+	//TcpSocket* clients = new TcpSocket;
 	if (!nickname.empty())
 	{
 		//CAS CLIENT
+		// socket nou per client rebut
+
 		sf::Socket::Status status_c = socket.connect("localhost", 50000, sf::milliseconds(5.f));
 		if (status_c != sf::Socket::Done) {
 			std::cout << "i couldn't connect to server" << std::endl;

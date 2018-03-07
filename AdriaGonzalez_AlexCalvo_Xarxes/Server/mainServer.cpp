@@ -15,7 +15,8 @@ int main()
 	sf::TcpSocket socket;
 	std::vector<sf::TcpSocket*> aSockets;
 	sf::TcpListener listener;
-	
+	//getPort
+	//get IP
 	//5000 es el puerto por el que escucha el servidor.
 	//El cliente debe conocer la ip del servidor y el puerto por el que escucha.
 	sf::Socket::Status status = listener.listen(50000);
