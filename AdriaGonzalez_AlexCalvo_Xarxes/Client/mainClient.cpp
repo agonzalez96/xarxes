@@ -9,6 +9,11 @@
 using namespace sf;
 using namespace std;
 
+struct Direction {
+	string IP;
+	int port;
+};
+
 void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	//TcpSocket* client = new TcpSocket;
 	while (true) {
@@ -54,7 +59,20 @@ int main()
 	char buffer[100];
 	std::size_t received;
 	std::string text = "Connected to: ";
+	std::vector<Direction> directionList;
+	sf::TcpListener listener;
+	Direction newDirection;
+	Packet connectionInfo;
 	//TcpSocket* clients = new TcpSocket;
+
+	sf::Socket::Status status = listener.listen(51000);
+	if (status != sf::Socket::Done)
+	{
+		//No se puede vincular al puerto 50000
+		std::cout << "nope" << std::endl;
+	}
+
+
 	if (!nickname.empty())
 	{
 		//CAS CLIENT
@@ -81,6 +99,18 @@ int main()
 			Socket::Status nickInfo = socket.send(nickPack);
 			//cout << "Me he conectado " << socket.getRemotePort() << endl;
 		}
+	}
+	TcpSocket* client = new TcpSocket;
+
+	for (int i = 0; i < 4 ; i++) {
+		socket.receive(connectionInfo);
+		connectionInfo >> newDirection.IP >> newDirection.port;
+		socket.connect(newDirection.IP, newDirection.port, sf::milliseconds(5.f));
+		directionList.push_back(newDirection);
+	}
+	for (int i = 0; i < directionList.size(); i++) {
+		cout << "connection " << i << "\nip " << directionList[i].IP << "\nport " << directionList[i].port << endl;
+
 	}
 
 	char data[100];
