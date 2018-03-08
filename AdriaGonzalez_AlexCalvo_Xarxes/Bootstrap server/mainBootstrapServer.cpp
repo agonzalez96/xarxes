@@ -32,21 +32,26 @@ int main()
 
 	Direction direction;
 	Packet _direction;
-	TcpSocket* client = new TcpSocket;
+	TcpSocket client;
 	
 	for (int i = 0; i < 4; i++) {
+		sf::Socket::Status status2 = listener.accept(client);
+		if (status2 == Socket::Done) {
+		_direction << directionList.size();
 		for (int j = 0; j < directionList.size(); j++) {
-			direction.IP = directionList[j].IP;
-			direction.port = directionList[j].port;
-			_direction << direction.IP << direction.port;
-			client->send(_direction);
+				direction.IP = directionList[j].IP;
+				direction.port = directionList[j].port;
+				_direction << direction.IP << direction.port;
+			}
+		client.send(_direction);
 		}
-		direction.IP = client->getRemoteAddress().toString();
-		direction.port = client->getRemotePort();
+		direction.IP = client.getRemoteAddress().toString();
+		direction.port = client.getRemotePort();
 		directionList.push_back(direction);
-	}	
-	
-	client->disconnect();
+		client.disconnect();
+	}
+
+	listener.close();
 	exit(0);
 
 	/*SocketSelector selector;

@@ -47,6 +47,10 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	}
 } 
 
+void t1(bool start) {
+
+}
+
 int main()
 {
 	cout << "Enter your nickname: ";
@@ -54,12 +58,14 @@ int main()
 	cin >> nickname;
 	cout << endl;
 
-	sf::TcpSocket socket;
 	char connectionType, mode;
 	char buffer[100];
+	bool start = false;
+	int socketNumber;
 	std::size_t received;
 	std::string text = "Connected to: ";
 	std::vector<Direction> directionList;
+	std::vector<sf::TcpSocket*> aSockets;
 	sf::TcpListener listener;
 	Direction newDirection;
 	Packet connectionInfo;
@@ -77,18 +83,11 @@ int main()
 	{
 		//CAS CLIENT
 		// socket nou per client rebut
+		sf::TcpSocket socketConnect;
 
-		sf::Socket::Status status_c = socket.connect("localhost", 50000, sf::milliseconds(5.f));
+		sf::Socket::Status status_c = socketConnect.connect("localhost", 50000, sf::milliseconds(5.f));
 		if (status_c != sf::Socket::Done) {
 			std::cout << "i couldn't connect to server" << std::endl;
-		}
-		else {
-			std::cout << "connected to server" << std::endl;
-		}
-
-		if (status_c != Socket::Done)
-		{
-			cout << "No se ha podido conectar" << endl;
 		}
 		else
 		{
@@ -100,13 +99,16 @@ int main()
 			//cout << "Me he conectado " << socket.getRemotePort() << endl;
 		}
 	}
-	TcpSocket* client = new TcpSocket;
-
-	for (int i = 0; i < 4 ; i++) {
-		socket.receive(connectionInfo);
+	sf::TcpSocket* socket = new TcpSocket;
+	socket->receive(connectionInfo);
+	connectionInfo >> socketNumber;
+	while (aSockets.size() < 3) {
+		socket = new TcpSocket;
 		connectionInfo >> newDirection.IP >> newDirection.port;
-		socket.connect(newDirection.IP, newDirection.port, sf::milliseconds(5.f));
+		socket->connect(newDirection.IP, newDirection.port, sf::milliseconds(5.f));
 		directionList.push_back(newDirection);
+		listener.accept(*socket);
+		aSockets.push_back(socket);
 	}
 	for (int i = 0; i < directionList.size(); i++) {
 		cout << "connection " << i << "\nip " << directionList[i].IP << "\nport " << directionList[i].port << endl;
