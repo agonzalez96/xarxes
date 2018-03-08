@@ -102,7 +102,8 @@ int main()
 	sf::TcpSocket* socket = new TcpSocket;
 	socket->receive(connectionInfo);
 	connectionInfo >> socketNumber;
-	while (aSockets.size() < 3) {
+	int a = 0;
+	while (a < socketNumber) {
 		socket = new TcpSocket;
 		connectionInfo >> newDirection.IP >> newDirection.port;
 		socket->connect(newDirection.IP, newDirection.port, sf::milliseconds(5.f));
@@ -110,10 +111,15 @@ int main()
 		listener.accept(*socket);
 		aSockets.push_back(socket);
 	}
+
 	for (int i = 0; i < directionList.size(); i++) {
 		cout << "connection " << i << "\nip " << directionList[i].IP << "\nport " << directionList[i].port << endl;
-
 	}
+
+	while (aSockets.size() < 3) {
+		listener.accept(client);
+	}
+
 
 	char data[100];
 
