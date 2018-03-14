@@ -24,49 +24,64 @@ int main()
 	{
 		//No se puede vincular al puerto 50000
 		std::cout << "nope" << std::endl;
+
 	}
 	
+
 	SocketSelector selector;
 	selector.add(listener);
-	
+	int i = 0;
+
 	while (true)
 	{
 		if (selector.wait())
 		{
 			if (selector.isReady(listener))
 			{
-				TcpSocket* client = new TcpSocket;
-				if (listener.accept(*client) == Socket::Done)
-				{
-					cout << "new client from port: " << client->getRemotePort() << endl;
-					aSockets.push_back(client);
-	
-					Packet name, login;
-					status = client->receive(name);
-					if (status != Socket::Disconnected)
+				while (i < 2){
+					TcpSocket* client = new TcpSocket;
+					if (listener.accept(*client) == Socket::Done)
 					{
-						string clientName;
-						name >> clientName;
-	
-						string newLogin;
-						newLogin = " >" + clientName + " has joined to the chat";
-	
-	
-						login << newLogin;
-	
-						for (vector<TcpSocket*>::iterator it = aSockets.begin(); it != aSockets.end(); ++it)
+						cout << "new client from port: " << client->getRemotePort() << endl;
+						aSockets.push_back(client);
+						i++;
+						cout << i;
+
+						Packet name, login;
+						status = client->receive(name);
+						if (status != Socket::Disconnected)
 						{
-							TcpSocket& client2 = **it;
-	
-							client2.send(login);
+							string clientName;
+							name >> clientName;
+
+							string newLogin;
+							newLogin = " >" + clientName + " has joined to the chat";
+
+
+							login << newLogin;
+
+							for (vector<TcpSocket*>::iterator it = aSockets.begin(); it != aSockets.end(); ++it)
+							{
+								TcpSocket& client2 = **it;
+
+								client2.send(login);
+							}
 						}
+						selector.add(*client);
 					}
-	
-					selector.add(*client);
+					else
+					{
+						delete client;
+					}
 				}
-				else
+				listener.close();
+				for (vector<TcpSocket*>::iterator it2 = aSockets.begin(); it2 != aSockets.end(); ++it2)
 				{
-					delete client;
+					TcpSocket& client2 = **it2;
+					Packet start;
+					start << 0;
+					start << true;
+					client2.send(start);
 				}
 			}
 			else

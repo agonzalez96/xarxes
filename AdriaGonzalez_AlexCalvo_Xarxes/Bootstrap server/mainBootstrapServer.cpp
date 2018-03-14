@@ -16,7 +16,7 @@ struct Direction {
 };
 
 int main()
-{	
+{
 	sf::TcpSocket socket;
 	std::vector<sf::TcpSocket*> aSockets;
 	std::vector<Direction> directionList;
@@ -33,24 +33,23 @@ int main()
 	Direction direction;
 	Packet _direction;
 	TcpSocket client;
-	
+
 	for (int i = 0; i < 4; i++) {
 		sf::Socket::Status status2 = listener.accept(client);
 		if (status2 == Socket::Done) {
-		_direction << directionList.size();
-		for (int j = 0; j < directionList.size(); j++) {
+			_direction << directionList.size();
+			for (int j = 0; j < directionList.size(); j++) {
 				direction.IP = directionList[j].IP;
 				direction.port = directionList[j].port;
 				_direction << direction.IP << direction.port;
 			}
-		client.send(_direction);
+			client.send(_direction);
 		}
 		direction.IP = client.getRemoteAddress().toString();
 		direction.port = client.getRemotePort();
 		directionList.push_back(direction);
 		client.disconnect();
 	}
-
 	listener.close();
 	exit(0);
 

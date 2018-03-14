@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{9F719F67-138B-4E1E-98B1-EDF9E9F07A73}</ProjectGuid>
+    <ProjectGuid>{91D66C18-7DFA-41EC-9769-6DBDECB9CF5A}</ProjectGuid>
     <RootNamespace>AdriaGonzalez_AlexCalvo_Xarxes</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

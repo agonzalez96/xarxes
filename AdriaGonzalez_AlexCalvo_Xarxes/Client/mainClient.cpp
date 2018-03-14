@@ -9,48 +9,41 @@
 using namespace sf;
 using namespace std;
 
-struct Direction {
-	string IP;
-	int port;
-};
 
-void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
-	//TcpSocket* client = new TcpSocket;
+void receiveData(TcpSocket* socket, vector<string>* aMensajes, bool start) {
 	while (true) {
-
 		sf::Packet infoPack;
-		std::size_t bytesReceived;
-		// Aqui pot rebre un packet amb la ip i el port
-		// Cada packet crea un socket
-		// Packet ip, port;
 		sf::Socket::Status status_r = socket->receive(infoPack);
 		if (status_r == Socket::NotReady) {
+
 			continue;
 		}
+	
 		else if (status_r == sf::Socket::Disconnected) {
 			break;
 		}
 		else if (status_r == Socket::Done)
 		{
-			// socket per cada nou client rebut
-
-			//status = client.recive(ip)
-			
-			//client.connect(ip,50000,sf::milliseconds(5.f));
-
-
 			string str;
-			infoPack >> str;
-			aMensajes->push_back(str);
+			int type;
+			infoPack >> type;
+			switch (type)
+			{
+			case 0:
+				infoPack >> start;
+				break;
+			case 1:
+				infoPack >> str;
+				aMensajes->push_back(str);
+				break;
+
+			default:
+				break;
+			}
 			
 		}
 	}
-} 
-
-void t1(bool start) {
-
 }
-
 int main()
 {
 	cout << "Enter your nickname: ";
@@ -58,36 +51,28 @@ int main()
 	cin >> nickname;
 	cout << endl;
 
+	sf::TcpSocket socket;
 	char connectionType, mode;
 	char buffer[100];
-	bool start = false;
-	int socketNumber;
 	std::size_t received;
 	std::string text = "Connected to: ";
-	std::vector<Direction> directionList;
-	std::vector<sf::TcpSocket*> aSockets;
-	sf::TcpListener listener;
-	Direction newDirection;
-	Packet connectionInfo;
-	//TcpSocket* clients = new TcpSocket;
-
-	sf::Socket::Status status = listener.listen(51000);
-	if (status != sf::Socket::Done)
-	{
-		//No se puede vincular al puerto 50000
-		std::cout << "nope" << std::endl;
-	}
+	bool start = false;
 
 
 	if (!nickname.empty())
 	{
 		//CAS CLIENT
-		// socket nou per client rebut
-		sf::TcpSocket socketConnect;
-
-		sf::Socket::Status status_c = socketConnect.connect("localhost", 50000, sf::milliseconds(5.f));
+		sf::Socket::Status status_c = socket.connect("localhost", 50000, sf::milliseconds(5.f));
 		if (status_c != sf::Socket::Done) {
 			std::cout << "i couldn't connect to server" << std::endl;
+		}
+		else {
+			std::cout << "connected to server" << std::endl;
+		}
+
+		if (status_c != Socket::Done)
+		{
+			cout << "No se ha podido conectar" << endl;
 		}
 		else
 		{
@@ -99,27 +84,6 @@ int main()
 			//cout << "Me he conectado " << socket.getRemotePort() << endl;
 		}
 	}
-	sf::TcpSocket* socket = new TcpSocket;
-	socket->receive(connectionInfo);
-	connectionInfo >> socketNumber;
-	int a = 0;
-	while (a < socketNumber) {
-		socket = new TcpSocket;
-		connectionInfo >> newDirection.IP >> newDirection.port;
-		socket->connect(newDirection.IP, newDirection.port, sf::milliseconds(5.f));
-		directionList.push_back(newDirection);
-		listener.accept(*socket);
-		aSockets.push_back(socket);
-	}
-
-	for (int i = 0; i < directionList.size(); i++) {
-		cout << "connection " << i << "\nip " << directionList[i].IP << "\nport " << directionList[i].port << endl;
-	}
-
-	while (aSockets.size() < 3) {
-		listener.accept(client);
-	}
-
 
 	char data[100];
 
@@ -155,74 +119,77 @@ int main()
 
 	//THREAD RECEIVE seguir per aqui
 
-		thread t1(&receiveData, &socket, &aMensajes);
+	thread t1(&receiveData, &socket, &aMensajes, &start);
+
 
 	while (window.isOpen())
 	{
-		sf::Event evento;
-		while (window.pollEvent(evento))
-		{
-			switch (evento.type)
+		if (start) {
+			sf::Event evento;
+			while (window.pollEvent(evento))
 			{
-			case sf::Event::Closed:
-				window.close();
-				break;
-			case sf::Event::KeyPressed:
-				if (evento.key.code == sf::Keyboard::Escape)
-					window.close();
-				else if (evento.key.code == sf::Keyboard::Return)
+				switch (evento.type)
 				{
-					aMensajes.push_back(mensaje);
-
-					//SEND DEL MESSAGE
-
-					Packet packet;
-					packet << mensaje;
-
-					if (mensaje == ">exit" || mensaje == " >exit") {
+				case sf::Event::Closed:
+					window.close();
+					break;
+				case sf::Event::KeyPressed:
+					if (evento.key.code == sf::Keyboard::Escape)
 						window.close();
-						exit(0);
-					}
-
-					Socket::Status status2 = socket.send(packet);
-
-					if (status2 != Socket::Done)
+					else if (evento.key.code == sf::Keyboard::Return)
 					{
-						cout << "Ha fallado el envio de datos" << endl;
+						aMensajes.push_back(mensaje);
 
-					}
+						//SEND DEL MESSAGE
 
-					if (aMensajes.size() > 25)
-					{
-						aMensajes.erase(aMensajes.begin(), aMensajes.begin() + 1);
+						Packet packet;
+						packet << mensaje;
+
+						if (mensaje == ">exit" || mensaje == " >exit") {
+							window.close();
+							exit(0);
+						}
+
+						Socket::Status status2 = socket.send(packet);
+
+						if (status2 != Socket::Done)
+						{
+							cout << "Ha fallado el envio de datos" << endl;
+
+						}
+
+						if (aMensajes.size() > 25)
+						{
+							aMensajes.erase(aMensajes.begin(), aMensajes.begin() + 1);
+						}
+						mensaje = ">";
 					}
-					mensaje = ">";
+					break;
+				case sf::Event::TextEntered:
+					if (evento.text.unicode >= 32 && evento.text.unicode <= 126)
+						mensaje += (char)evento.text.unicode;
+					else if (evento.text.unicode == 8 && mensaje.length() > 0)
+						mensaje.erase(mensaje.length() - 1, mensaje.length());
+					break;
 				}
-				break;
-			case sf::Event::TextEntered:
-				if (evento.text.unicode >= 32 && evento.text.unicode <= 126)
-					mensaje += (char)evento.text.unicode;
-				else if (evento.text.unicode == 8 && mensaje.length() > 0)
-					mensaje.erase(mensaje.length() - 1, mensaje.length());
-				break;
 			}
-		}
-		window.draw(separator);
+			window.draw(separator);
 
 
-		//RECEIVE
-		for (size_t i = 0; i < aMensajes.size(); i++)
-		{
-			std::string chatting = aMensajes[i];
-			chattingText.setPosition(sf::Vector2f(0, 20 * i));
-			chattingText.setString(chatting);
-			window.draw(chattingText);
+			//RECEIVE
+			for (size_t i = 0; i < aMensajes.size(); i++)
+			{
+				std::string chatting = aMensajes[i];
+				chattingText.setPosition(sf::Vector2f(0, 20 * i));
+				chattingText.setString(chatting);
+				window.draw(chattingText);
+			}
+			std::string mensaje_ = mensaje + "_";
+			text1.setString(mensaje_);
+			window.draw(text1);
+			window.display();
+			window.clear();
 		}
-		std::string mensaje_ = mensaje + "_";
-		text1.setString(mensaje_);
-		window.draw(text1);
-		window.display();
-		window.clear();
 	}
 	if (!window.isOpen())
 	{
