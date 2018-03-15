@@ -74,15 +74,13 @@ int main()
 						delete client;
 					}
 				}
-				listener.close();
-				for (vector<TcpSocket*>::iterator it2 = aSockets.begin(); it2 != aSockets.end(); ++it2)
-				{
-					TcpSocket& client2 = **it2;
-					Packet start;
-					start << 0;
-					start << true;
-					client2.send(start);
-				}
+				//for (vector<TcpSocket*>::iterator it2 = aSockets.begin(); it2 != aSockets.end(); ++it2)
+				//{
+				//	TcpSocket& client2 = **it2;
+				//	Packet start;
+				//	start << true;
+				//	client2.send(start);
+				//}
 			}
 			else
 			{

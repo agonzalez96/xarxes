@@ -63,13 +63,6 @@ int main()
 	{
 		//CAS CLIENT
 		sf::Socket::Status status_c = socket.connect("localhost", 50000, sf::milliseconds(5.f));
-		if (status_c != sf::Socket::Done) {
-			std::cout << "i couldn't connect to server" << std::endl;
-		}
-		else {
-			std::cout << "connected to server" << std::endl;
-		}
-
 		if (status_c != Socket::Done)
 		{
 			cout << "No se ha podido conectar" << endl;
@@ -81,10 +74,25 @@ int main()
 			nickPack << nickname;
 
 			Socket::Status nickInfo = socket.send(nickPack);
+
+			
 			//cout << "Me he conectado " << socket.getRemotePort() << endl;
 		}
 	}
+	Packet init;
+	
+	sf::Socket::Status status_r = socket.receive(init);
+	if (status_r == Socket::NotReady) {
 
+	}
+
+	else if (status_r == sf::Socket::Disconnected) {
+
+	}
+	else if (status_r == Socket::Done)
+	{
+		init >> start;
+	}
 	char data[100];
 
 	std::vector<string> aMensajes;
