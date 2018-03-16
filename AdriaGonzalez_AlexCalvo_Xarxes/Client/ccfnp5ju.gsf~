@@ -24,10 +24,22 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 		else if (status_r == Socket::Done)
 		{
 			string str;
-			infoPack >> str;
-			cout << str;
-			aMensajes->push_back(str);
+			int type;
+			infoPack >> type;
+			switch (type)
+			{
+			case 0:
+				break;
+			case 1:
+				infoPack >> str;
+				aMensajes->push_back(str);
+				break;
+
+			default:
+				break;
 			}
+			
+		}
 	}
 }
 int main()
@@ -56,30 +68,28 @@ int main()
 		{
 			Packet init, nickPack;
 			char data[1];
-			data[0] = 0;
 			std::size_t received;
-
-			nickPack << nickname;
-			Socket::Status nickInfo = socket.send(nickPack);
-
-			while (start != 1) { 
+			while (start != 1) { //LifeHack
 				sf::Socket::Status status_r = socket.receive(data, 1, received);
 				if (status_r == Socket::NotReady) {
-					//cout << "not ready";
+					cout << "not ready";
 				}
 
 				else if (status_r == sf::Socket::Disconnected) {
-				//	cout << "disco";
+					cout << "disco";
 				}
 				else if (status_r == Socket::Done)
 				{
-					//cout << "suuh";
+					cout << "suuh";
 					start = data[0];
 				}
 				else if (status_r == Socket::Error) {
-				//	cout << "error";
+					cout << "error";
 				}
 			}
+			nickPack << nickname;
+
+			Socket::Status nickInfo = socket.send(nickPack);
 
 			
 			//cout << "Me he conectado " << socket.getRemotePort() << endl;
