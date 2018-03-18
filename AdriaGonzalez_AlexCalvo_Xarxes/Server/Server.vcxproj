@@ -121,6 +121,9 @@
   <ItemGroup>
     <ClCompile Include="mainServer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameLib.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

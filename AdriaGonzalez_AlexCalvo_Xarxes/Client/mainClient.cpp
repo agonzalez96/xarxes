@@ -1,14 +1,4 @@
-#include <SFML\Network.hpp>
-#include <SFML\Graphics.hpp>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <cstring>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stdio.h>
+#include "GameLib.h"
 
 #define MAX_MENSAJES 30
 
@@ -64,10 +54,6 @@ sf::Vector2f BoardToWindows(sf::Vector2f _position)
 {
 	return sf::Vector2f(_position.x*LADO_CASILLA + OFFSET_AVATAR, _position.y*LADO_CASILLA + OFFSET_AVATAR);
 }
-
-
-
-
 
 //Contiene el código SFML que captura el evento del clic del mouse y el código que pinta por pantalla
 /*
@@ -280,6 +266,12 @@ int main()
 	cin >> nickname;
 	cout << endl;
 
+	cout << nickname << ", welcome"  << " to EntiPoly - The best Monopoly Edition ever made\n" << endl;
+	cout << "Game instructions:\n\nThe game works with chat instructions, so when your turn starts type one of the commands below:\n" << endl;
+	cout << "   throw dice --> This command allows you to throw a dice and move around the game\n" << endl;
+	cout << "   exit --> This allows you to quit the game\n" << endl;
+	cout << "The game will start when 4 people connect to the game, please wait...\n" << endl;;
+
 	sf::TcpSocket socket;
 	char connectionType, mode;
 	char buffer[100];
@@ -323,9 +315,7 @@ int main()
 				//	cout << "error";
 				}
 			}
-
-			
-			//cout << "Me he conectado " << socket.getRemotePort() << endl;
+			cout << "Let's start!" << endl;
 		}
 	}
 
@@ -336,7 +326,7 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(640, 640), "Entipoly");
 
 	Texture background;
-	if (!background.loadFromFile("../res/Entipoly.png"))
+	if (!background.loadFromFile("Entipoly.png"))
 	{
 		cout << "Error" << endl;
 	}
@@ -388,10 +378,13 @@ int main()
 				{
 				case sf::Event::Closed:
 					window2.close();
+					window.close();
 					break;
 				case sf::Event::KeyPressed:
-					if (evento.key.code == sf::Keyboard::Escape)
+					if (evento.key.code == sf::Keyboard::Escape) {
 						window2.close();
+						window.close();
+					}
 					else if (evento.key.code == sf::Keyboard::Return)
 					{
 						aMensajes.push_back(mensaje);
@@ -403,6 +396,7 @@ int main()
 
 						if (mensaje == ">exit" || mensaje == " >exit") {
 							window2.close();
+							window.close();
 							exit(0);
 						}
 
@@ -450,6 +444,7 @@ int main()
 				{
 				case sf::Event::Closed:
 					window.close();
+					window2.close();
 					break;
 				case sf::Event::MouseButtonPressed:
 					if (event.mouseButton.button == sf::Mouse::Left && tienesTurno)

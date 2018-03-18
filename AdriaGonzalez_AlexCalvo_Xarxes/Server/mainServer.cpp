@@ -1,23 +1,10 @@
-#include <SFML\Network.hpp>
-#include <SFML\Graphics.hpp>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <cstring>
-#include <list>
-#define MAX_MENSAJES 30
-using namespace sf;
-using namespace std;
+#include "GameLib.h"
 
-struct Player {
-	int playerID;
-	float pos_X, pos_y;
-	int money;
-};
+#define MAX_MENSAJES 30
 
 int main()
 {	
+
 	sf::TcpSocket socket;
 	std::vector<sf::TcpSocket*> aSockets;
 	sf::TcpListener listener;
@@ -42,12 +29,9 @@ int main()
 
 	while (true)
 	{
-		if (i < 4) {
-
-		}
 		if (selector.wait())
 		{
-			while (i < 4) {
+			while (i < 3) {
 			if (selector.isReady(listener))
 			{
 				TcpSocket* client = new TcpSocket;
@@ -62,13 +46,15 @@ int main()
 						{
 							TcpSocket& client2 = **it2;
 							Packet start;
-							if (i < 4) {
+							if (i < 3) {
 								data[0] = 0;
 								client2.send(data, 1);
 							}
 							else {
 								data[0] = 1;
 								client2.send(data, 1);
+								Packet startInfo;
+								
 							}
 						}
 						selector.add(*client);
@@ -85,7 +71,7 @@ int main()
 						name >> clientName;
 
 						string newLogin;
-						newLogin = " > A new player has joined to the chat";
+						//newLogin = " > "  name " has joined to the chat";
 
 
 						login << newLogin;
@@ -97,7 +83,7 @@ int main()
 				}
 				}
 			}
-			if (i == 4)
+			if (i == 3)
 			{
 				for (vector<TcpSocket*>::iterator it1 = aSockets.begin(); it1 != aSockets.end(); ++it1)
 				{
@@ -121,7 +107,6 @@ int main()
 		
 							for (int i = 0; i < logout.length(); i++)
 							{
-	
 								messageComplete.push_back(logout[i]);
 								if (logOutKey == messageComplete) {
 									key = true;
@@ -145,18 +130,33 @@ int main()
 						}
 						else if (status == Socket::Disconnected)
 						{
-							Packet  sendDisconnect;
-	
-							string newLogout;
-							newLogout = "Another user has exit the chat";
-	
-							sendDisconnect << newLogout;
-	
-							for (vector<TcpSocket*>::iterator it = aSockets.begin(); it != aSockets.end(); ++it)
+							string logout;
+							packet >> logout;
+
+							bool key = false;
+
+							for (int i = 0; i < logout.length(); i++)
 							{
-								TcpSocket& client2 = **it;
-	
-								client2.send(sendDisconnect);
+
+								messageComplete.push_back(logout[i]);
+								if (logOutKey == messageComplete) {
+									key = true;
+								}
+
+								if (key)
+								{
+									userNameLogOut.push_back(logout[i]);
+								}
+							}
+
+							for (vector<TcpSocket*>::iterator it2 = aSockets.begin(); it2 != aSockets.end(); ++it2)
+							{
+								TcpSocket& client2 = **it2;
+
+								if (it1 != it2) {
+									client2.send(packet);
+								}
+
 							}
 							selector.remove(client);
 						}
