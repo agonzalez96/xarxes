@@ -1,6 +1,4 @@
-#include "GameLib.h"
-
-#define MAX_MENSAJES 30
+#include <GameLib.h>
 
 #define MAX 100
 #define SIZE_TABLERO 64
@@ -241,6 +239,7 @@ void DibujaSFML()
 void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	while (true) {
 		sf::Packet infoPack;
+		string str;
 		sf::Socket::Status status_r = socket->receive(infoPack);
 		if (status_r == Socket::NotReady) {
 			continue;
@@ -251,16 +250,28 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 		}
 		else if (status_r == Socket::Done)
 		{
-			string str;
-			infoPack >> str;
-			cout << str;
-			aMensajes->push_back(str);
+			for (int i = 0; i < NUM_PLAYERS; i++) {
+				infoPack >> str;
+				aMensajes->push_back(str);
 			}
+
+		}
 	}
 }
 
+
 int main()
 {
+	vector<Player> aPlayers;
+	Player player1{ 0,14,0 };
+	aPlayers.push_back(player1);
+	Player player2{ 1,15,0 };
+	aPlayers.push_back(player2);
+	Player player3{ 2,6,0 };
+	aPlayers.push_back(player3);
+	Player player4{ 3,9,0 };
+	aPlayers.push_back(player4);
+
 	cout << "Enter your nickname: ";
 	string nickname;
 	cin >> nickname;
@@ -348,7 +359,7 @@ int main()
 		std::cout << "Can't load the font file" << std::endl;
 	}
 
-	string mensaje = " >";
+	string mensaje = " " + nickname +" > ";
 
 	sf::Text chattingText(mensaje, font, 14);
 	chattingText.setFillColor(sf::Color(0, 160, 0));
@@ -394,7 +405,7 @@ int main()
 						Packet packet;
 						packet << mensaje;
 
-						if (mensaje == ">exit" || mensaje == " >exit") {
+						if (mensaje == " " + nickname + ">exit" || mensaje == " " + nickname + " >exit") {
 							window2.close();
 							window.close();
 							exit(0);
@@ -412,7 +423,7 @@ int main()
 						{
 							aMensajes.erase(aMensajes.begin(), aMensajes.begin() + 1);
 						}
-						mensaje = ">";
+						mensaje = " " + nickname + " > ";
 					}
 					break;
 				case sf::Event::TextEntered:
@@ -500,31 +511,36 @@ int main()
 			Color yellow(255, 255, 0, 255);
 
 			//TODO: Para pintar el circulito del ratón
+
 			//Player1
 			sf::CircleShape Player1(RADIO_AVATAR);
 			Player1.setFillColor(red);
-			sf::Vector2f posicionPlayer1(8.f, 8.f);
+			//sf::Vector2f posicionPlayer1(8.0f, 8.0f);
+			sf::Vector2f posicionPlayer1(caselles.at(player1.pos).posx, caselles.at(player1.pos).posy);
 			posicionPlayer1 = BoardToWindows(posicionPlayer1);
 			Player1.setPosition(posicionPlayer1);
 			window.draw(Player1);
 			//Player2
 			sf::CircleShape Player2(RADIO_AVATAR);
 			Player2.setFillColor(blue);
-			sf::Vector2f posicionPlayer2(9.f, 8.f);
+			//sf::Vector2f posicionPlayer2(9.f, 8.f);
+			sf::Vector2f posicionPlayer2(caselles.at(player2.pos).posx + 1, caselles.at(player2.pos).posy);
 			posicionPlayer2 = BoardToWindows(posicionPlayer2);
 			Player2.setPosition(posicionPlayer2);
 			window.draw(Player2);
 			//Player3
 			sf::CircleShape Player3(RADIO_AVATAR);
 			Player3.setFillColor(green);
-			sf::Vector2f posicionPlayer3(8.f, 9.f);
+			//sf::Vector2f posicionPlayer3(8.f, 9.f);
+			sf::Vector2f posicionPlayer3(caselles.at(player3.pos).posx, caselles.at(player3.pos).posy + 1);
 			posicionPlayer3 = BoardToWindows(posicionPlayer3);
 			Player3.setPosition(posicionPlayer3);
 			window.draw(Player3);
 			//Player4
 			sf::CircleShape Player4(RADIO_AVATAR);
 			Player4.setFillColor(yellow);
-			sf::Vector2f posicionPlayer4(9.f, 9.f);
+			//sf::Vector2f posicionPlayer4(9.f, 9.f);
+			sf::Vector2f posicionPlayer4(caselles.at(player4.pos).posx + 1, caselles.at(player4.pos).posy + 1);
 			posicionPlayer4 = BoardToWindows(posicionPlayer4);
 			Player4.setPosition(posicionPlayer4);
 			window.draw(Player4);
@@ -573,7 +589,7 @@ int main()
 	if (!window2.isOpen())
 	{
 		Packet sendLogout;
-		sendLogout << "logOut_" + nickname;
+		sendLogout <<  nickname + "has exited the game" ;
 
 		Socket::Status logOutStatus = socket.send(sendLogout);
 		if (logOutStatus != Socket::Done) {
