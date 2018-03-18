@@ -10,6 +10,12 @@
 using namespace sf;
 using namespace std;
 
+struct Player {
+	int playerID;
+	float pos_X, pos_y;
+	int money;
+};
+
 int main()
 {	
 	sf::TcpSocket socket;
@@ -36,12 +42,12 @@ int main()
 
 	while (true)
 	{
-		if (i < 2) {
+		if (i < 4) {
 
 		}
 		if (selector.wait())
 		{
-			while (i < 2) {
+			while (i < 4) {
 			if (selector.isReady(listener))
 			{
 				TcpSocket* client = new TcpSocket;
@@ -56,7 +62,7 @@ int main()
 						{
 							TcpSocket& client2 = **it2;
 							Packet start;
-							if (i < 2) {
+							if (i < 4) {
 								data[0] = 0;
 								client2.send(data, 1);
 							}
@@ -91,7 +97,7 @@ int main()
 				}
 				}
 			}
-			if (i == 2)
+			if (i == 4)
 			{
 				for (vector<TcpSocket*>::iterator it1 = aSockets.begin(); it1 != aSockets.end(); ++it1)
 				{
