@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameLib.h">
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PlayerInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
