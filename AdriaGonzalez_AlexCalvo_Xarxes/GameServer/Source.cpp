@@ -1,5 +1,7 @@
 #include "PlayerInfo.h"
 
+//Server
+
 void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	while (true) {
 		sf::Packet infoPack;
@@ -20,22 +22,11 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	}
 }
 
-void ThrowDice(Player player, int dice) {
-	dice = rand() % 6 + 1;
-	player.pos += dice;
-	if (player.pos >= 15) {
-		player.pos = player.pos - 15;
-	}
-}
 
 int main()
 {
-	int dice = 0;
 	srand(time(NULL));
-	Player player1{ 0,0,0 };
-	Player player2{ 0,0,0 };
-	Player player3{ 0,0,0 };
-	Player player4{ 0,0,0 };
+
 
 	sf::TcpSocket socket;
 	std::vector<sf::TcpSocket*> aSockets;
@@ -228,7 +219,6 @@ int main()
 
 							if (logout == " > throwdice") {
 								Packet action;
-								ThrowDice(player1, dice);
 								action << "7" + 1;
 							}
 

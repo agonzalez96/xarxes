@@ -1,5 +1,7 @@
 #include <PlayerInfo.h>
 
+//Client
+
 #define MAX 100
 #define SIZE_TABLERO 64
 #define SIZE_FILA_TABLERO 8
@@ -262,15 +264,6 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 
 int main()
 {
-	vector<Player> aPlayers;
-	Player player1{ 0,14,0 };
-	aPlayers.push_back(player1);
-	Player player2{ 1,15,0 };
-	aPlayers.push_back(player2);
-	Player player3{ 2,6,0 };
-	aPlayers.push_back(player3);
-	Player player4{ 3,9,0 };
-	aPlayers.push_back(player4);
 
 	cout << "Enter your nickname: ";
 	string nickname;
@@ -330,20 +323,6 @@ int main()
 		}
 	}
 
-	///////////////////////////
-	sf::Vector2f casillaOrigen, casillaDestino;
-	bool casillaMarcada = false;
-
-	sf::RenderWindow window(sf::VideoMode(640, 640), "Entipoly");
-
-	Texture background;
-	if (!background.loadFromFile("Entipoly.png"))
-	{
-		cout << "Error" << endl;
-	}
-	Sprite backgroundSprite;
-	backgroundSprite.setTexture(background);
-	///////////////////////////
 	char data[100];
 
 	std::vector<string> aMensajes;
@@ -379,7 +358,7 @@ int main()
 	//THREAD RECEIVE seguir per aqui
 	thread t1(&receiveData, &socket, &aMensajes);
 
-	while (window2.isOpen() && window.isOpen())
+	while (window2.isOpen())
 	{
 		//if (start) {
 		sf::Event evento;
@@ -389,12 +368,10 @@ int main()
 			{
 			case sf::Event::Closed:
 				window2.close();
-				window.close();
 				break;
 			case sf::Event::KeyPressed:
 				if (evento.key.code == sf::Keyboard::Escape) {
 					window2.close();
-					window.close();
 				}
 				else if (evento.key.code == sf::Keyboard::Return)
 				{
@@ -406,8 +383,13 @@ int main()
 					packet << mensaje;
 
 					if (mensaje == " " + nickname + ">exit" || mensaje == " " + nickname + " >exit") {
+						std::cout << "Entra" << std::endl;
 						window2.close();
-						window.close();
+						exit(0);
+					}
+
+					if (mensaje == " " + nickname + ">parell" || mensaje == " " + nickname + " >parell") {
+						std::cout << "Entra" << std::endl;
 						exit(0);
 					}
 
@@ -446,141 +428,7 @@ int main()
 		}
 		std::string mensaje_ = mensaje + "_";
 		text1.setString(mensaje_);
-		//////////////////////
-		sf::Event event;
 
-		while (window.pollEvent(event))
-		{
-			switch (event.type)
-			{
-			case sf::Event::Closed:
-				window.close();
-				window2.close();
-				break;
-			case sf::Event::MouseButtonPressed:
-				if (event.mouseButton.button == sf::Mouse::Left && tienesTurno)
-				{
-					int x = event.mouseButton.x;
-					int y = event.mouseButton.y;
-					if (!casillaMarcada)
-					{
-						casillaOrigen = TransformaCoordenadaACasilla(x, y);
-						casillaMarcada = true;
-						//TODO: Comprobar que la casilla marcada coincide con las posición del raton (si le toca al ratón)
-						//o con la posicion de alguna de las piezas del gato (si le toca al gato)
-
-					}
-					else
-					{
-						casillaDestino = TransformaCoordenadaACasilla(x, y);
-						if (casillaOrigen.x == casillaDestino.x && casillaOrigen.y == casillaDestino.y)
-						{
-							casillaMarcada = false;
-							//Si me vuelven a picar sobre la misma casilla, la desmarco
-						}
-						else
-						{
-							if (quienSoy == TipoProceso::RATON)
-							{
-								//TODO: Validar que el destino del ratón es correcto
-
-								//TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
-
-							}
-							else if (quienSoy == TipoProceso::GATO)
-							{
-								//TODO: Validar que el destino del gato es correcto
-
-								//TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
-							}
-						}
-					}
-				}
-				break;
-			default:
-				break;
-
-			}
-		}
-
-		window.clear();
-		window.draw(backgroundSprite);
-		Color red(255, 0, 0, 255);
-		Color blue(0, 0, 255, 255);
-		Color green(0, 255, 0, 255);
-		Color yellow(255, 255, 0, 255);
-
-		//TODO: Para pintar el circulito del ratón
-
-		//Player1
-		sf::CircleShape Player1(RADIO_AVATAR);
-		Player1.setFillColor(red);
-		//sf::Vector2f posicionPlayer1(8.0f, 8.0f);
-		sf::Vector2f posicionPlayer1(caselles.at(player1.pos).posx, caselles.at(player1.pos).posy);
-		posicionPlayer1 = BoardToWindows(posicionPlayer1);
-		Player1.setPosition(posicionPlayer1);
-		window.draw(Player1);
-		//Player2
-		sf::CircleShape Player2(RADIO_AVATAR);
-		Player2.setFillColor(blue);
-		//sf::Vector2f posicionPlayer2(9.f, 8.f);
-		sf::Vector2f posicionPlayer2(caselles.at(player2.pos).posx + 1, caselles.at(player2.pos).posy);
-		posicionPlayer2 = BoardToWindows(posicionPlayer2);
-		Player2.setPosition(posicionPlayer2);
-		window.draw(Player2);
-		//Player3
-		sf::CircleShape Player3(RADIO_AVATAR);
-		Player3.setFillColor(green);
-		//sf::Vector2f posicionPlayer3(8.f, 9.f);
-		sf::Vector2f posicionPlayer3(caselles.at(player3.pos).posx, caselles.at(player3.pos).posy + 1);
-		posicionPlayer3 = BoardToWindows(posicionPlayer3);
-		Player3.setPosition(posicionPlayer3);
-		window.draw(Player3);
-		//Player4
-		sf::CircleShape Player4(RADIO_AVATAR);
-		Player4.setFillColor(yellow);
-		//sf::Vector2f posicionPlayer4(9.f, 9.f);
-		sf::Vector2f posicionPlayer4(caselles.at(player4.pos).posx + 1, caselles.at(player4.pos).posy + 1);
-		posicionPlayer4 = BoardToWindows(posicionPlayer4);
-		Player4.setPosition(posicionPlayer4);
-		window.draw(Player4);
-
-
-
-		if (!tienesTurno)
-		{
-			//Si no tengo el turno, pinto un letrerito de "Esperando..."
-			sf::Font font;
-			std::string pathFont = "liberation_sans/LiberationSans-Regular.ttf";
-			if (!font.loadFromFile(pathFont))
-			{
-				std::cout << "No se pudo cargar la fuente" << std::endl;
-			}
-
-
-			sf::Text textEsperando("Esperando...", font);
-			textEsperando.setPosition(sf::Vector2f(180, 200));
-			textEsperando.setCharacterSize(30);
-			textEsperando.setStyle(sf::Text::Bold);
-			textEsperando.setFillColor(sf::Color::Green);
-			window.draw(textEsperando);
-		}
-		else
-		{
-			//Si tengo el turno y hay una casilla marcada, la marco con un recuadro amarillo.
-			/*if (casillaMarcada)
-			{
-			sf::RectangleShape rect(sf::Vector2f(LADO_CASILLA, LADO_CASILLA));
-			rect.setPosition(sf::Vector2f(casillaOrigen.x*LADO_CASILLA, casillaOrigen.y*LADO_CASILLA));
-			rect.setFillColor(sf::Color::Transparent);
-			rect.setOutlineThickness(5);
-			rect.setOutlineColor(sf::Color::Yellow);
-			window.draw(rect);
-			}*/
-		}
-
-		window.display();
-		///////////////////////////
 		window2.draw(text1);
 		window2.display();
 		window2.clear();

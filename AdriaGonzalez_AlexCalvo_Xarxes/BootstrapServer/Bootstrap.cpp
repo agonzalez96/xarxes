@@ -1,6 +1,6 @@
 #include <PlayerInfo.h>
 
-#define MAX_MENSAJES 30
+
 using namespace sf;
 using namespace std;
 
