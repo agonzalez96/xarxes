@@ -1,0 +1,11 @@
+﻿  ClientP2P.cpp
+ClientP2P.cpp(21): warning C4101: 'bytesReceived': unreferenced local variable
+ClientP2P.cpp(88): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+ClientP2P.cpp(109): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+ClientP2P.cpp(324): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
+ClientP2P.cpp(57): warning C4101: 'mode': unreferenced local variable
+ClientP2P.cpp(61): warning C4101: 'received': unreferenced local variable
+ClientP2P.cpp(120): warning C4101: 'data': unreferenced local variable
+ClientP2P.cpp(57): warning C4101: 'connectionType': unreferenced local variable
+ClientP2P.cpp(58): warning C4101: 'buffer': unreferenced local variable
+LINK : fatal error LNK1181: cannot open input file 'GameLib.lib'
