@@ -30,10 +30,12 @@ int main()
 
 	sf::TcpSocket socket;
 	std::vector<sf::TcpSocket*> aSockets;
+	vector <Player> aPlayers;
 	sf::TcpListener listener;
 	int _start = 0;
 	char data[1];
 	bool setUp = false;
+	bool num = false;
 	Packet name, login;
 
 	//getPort
@@ -66,6 +68,10 @@ int main()
 					{
 						cout << "new client from port: " << client->getRemotePort() << endl;
 						aSockets.push_back(client);
+						
+						Player player;
+						player.clientsocket = client;
+
 						i++;
 						cout << i;
 
@@ -78,13 +84,17 @@ int main()
 							string newLogin;
 							newLogin = " > " + clientName + " has joined to the chat\n";
 
+							player.playername = clientName;
+							aPlayers.push_back(player);
+						
+
 							cout << newLogin;
 
 							login << newLogin;
-
-							for (vector<TcpSocket*>::iterator it2 = aSockets.begin(); it2 != aSockets.end(); ++it2)
+							
+							for (vector<Player>::iterator it2 = aPlayers.begin(); it2 != aPlayers.end(); ++it2)
 							{
-								TcpSocket& client2 = **it2;
+								TcpSocket& client2 = *it2->clientsocket;
 								Packet start;
 								if (i < NUM_PLAYERS) {
 									data[0] = 0;
@@ -111,9 +121,9 @@ int main()
 					string init, init2;
 					Packet temp;
 
-					for (vector<TcpSocket*>::iterator it = aSockets.begin(); it != aSockets.end(); ++it)
+					for (vector<Player>::iterator it = aPlayers.begin(); it != aPlayers.end(); ++it)
 					{
-						TcpSocket& client2 = **it;
+						TcpSocket& client2 = *it->clientsocket;
 						//temp << 0;
 						for (int j = 0; j < NUM_PLAYERS; j++) {
 							login >> init;
@@ -127,9 +137,9 @@ int main()
 				}
 
 
-				for (vector<TcpSocket*>::iterator it1 = aSockets.begin(); it1 != aSockets.end(); ++it1)
+				for (vector<Player>::iterator it1 = aPlayers.begin(); it1 != aPlayers.end(); ++it1)
 				{
-					TcpSocket& client = **it1;
+					TcpSocket& client = *it1->clientsocket;
 
 					if (selector.isReady(client))
 					{
@@ -144,86 +154,58 @@ int main()
 						{
 							string logout;
 							packet >> logout;
-
-							int player = 0;
-							int action = 0;
+							string nickname;
+							nickname = it1->playername;
 							//Turnos (Not finished)
-							/*switch (player)
-							{
-							case 1:
-							switch (action)
-							{
-							case 1:
-							ThrowDice(player1, dice);
-							break;
 
-							case 2:
-
-							break;
-
-							default:
-							break;
-							}
-							break;
-							case 2:
-							switch (action)
-							{
-							case 1:
-							ThrowDice(player1, dice);
-							break;
-
-							case 2:
-
-							break;
-
-							default:
-							break;
-							}
-							break;
-							case 3:
-							switch (action)
-							{
-							case 1:
-							ThrowDice(player1, dice);
-							break;
-
-							case 2:
-
-							break;
-
-							default:
-							break;
-							}
-							break;
-							case 4:
-							switch (action)
-							{
-							case 1:
-							ThrowDice(player1, dice);
-							break;
-
-							case 2:
-
-							break;
-
-							default:
-							break;
-							}
-							break;
-							default:
-							break;
-							}*/
 
 							bool key = false;
 							cout << logout;
+							//per cada jugador escull parell o imparell//
+							if (it1->voted = NO_VOTE) {
+								if (logout == " " + nickname + ">parell") {
+									it1->voted = PAR;
 
-							if (logout == " > throwdice") {
-								Packet action;
-								action << "7" + 1;
+								}
+
+								if (logout == " " + nickname + " >imparell") {
+									it1->voted = IMPAR;
+								}
 							}
+							else {
+								//un cop ha votat(fer que sigui que han votat tots);
 
+								// per cada jugador diu el numero que vol apostar de 1 a 5//
+
+								if (logout == " " + nickname + " >1") {
+									number += 1;
+									num = true;
+								}
+
+								if (logout == " " + nickname + " >2") {
+									number += 2;
+									num = true;
+								}
+
+								if (logout == " " + nickname + " >3") {
+									number += 3;
+									num = true;
+								}
+
+								if (logout == " " + nickname + " >4") {
+									number += 4;
+									num = true;
+								}
+
+								if (logout == " " + nickname + " >5") {
+									number += 5;
+									num = true;
+								}
+							}
+							//quan tots hagin votat i dit numero s'hauria de comprovar i sumar un punt, al arribar a 3 s'acaba la partida 
 							for (int i = 0; i < logout.length(); i++)
 							{
+
 								messageComplete.push_back(logout[i]);
 								if (logOutKey == messageComplete) {
 									key = true;
@@ -233,14 +215,23 @@ int main()
 								{
 									userNameLogOut.push_back(logout[i]);
 								}
+
 							}
 
-							for (vector<TcpSocket*>::iterator it2 = aSockets.begin(); it2 != aSockets.end(); ++it2)
+							for (vector<Player>::iterator it2 = aPlayers.begin(); it2 != aPlayers.end(); ++it2)
 							{
-								TcpSocket& client2 = **it2;
-
+								TcpSocket& client2 = *it2->clientsocket;
+								//si num es true envia a la resta unicament que ha votat
 								if (it1 != it2) {
-									client2.send(packet);
+									if (!num) {
+										client2.send(packet);
+									}
+									else {
+										Packet votedpack;
+										votedpack << it1->playername + " is done ";
+										client2.send(votedpack);
+										num = false;
+									}
 								}
 
 							}

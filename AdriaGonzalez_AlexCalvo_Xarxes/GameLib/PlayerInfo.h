@@ -18,7 +18,16 @@
 using namespace sf;
 using namespace std;
 
+int number = 0;
+
+enum vote
+{
+	NO_VOTE, PAR, IMPAR
+};
+
 struct Player {
-	int playerID;
-	int points;
+	string playername;
+	TcpSocket* clientsocket;
+	int points = 0;
+	vote voted;
 };
