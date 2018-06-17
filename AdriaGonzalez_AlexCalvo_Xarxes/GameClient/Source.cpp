@@ -10,6 +10,7 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 	while (true) {
 		sf::Packet infoPack;
 		string str;
+		int type;
 		sf::Socket::Status status_r = socket->receive(infoPack);
 		if (status_r == Socket::NotReady) {
 			continue;
@@ -20,11 +21,17 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 		}
 		else if (status_r == Socket::Done)
 		{
-			for (int i = 0; i < NUM_PLAYERS; i++) {
+			infoPack >> type;
+			if (type == 1) {
+				for (int i = 0; i < NUM_PLAYERS; i++) {
+					infoPack >> str;
+					aMensajes->push_back(str);
+				}
+			}
+			else if (type == 2) {
 				infoPack >> str;
 				aMensajes->push_back(str);
 			}
-
 		}
 	}
 }
@@ -54,7 +61,7 @@ int main()
 
 
 	if (!nickname.empty())
-	{ 
+	{
 		sf::Socket::Status status_c = socket.connect("localhost", 50000, sf::milliseconds(5.f));
 		if (status_c != Socket::Done)
 		{

@@ -1,9 +1,14 @@
 ﻿  Source.cpp
-Source.cpp(58): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
-Source.cpp(189): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
-Source.cpp(48): warning C4101: 'mode': unreferenced local variable
-Source.cpp(50): warning C4101: 'received': unreferenced local variable
-Source.cpp(95): warning C4101: 'data': unreferenced local variable
-Source.cpp(48): warning C4101: 'connectionType': unreferenced local variable
-Source.cpp(49): warning C4101: 'buffer': unreferenced local variable
-LINK : fatal error LNK1181: cannot open input file 'GameLib.lib'
+Source.cpp(65): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+Source.cpp(196): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
+Source.cpp(55): warning C4101: 'mode': unreferenced local variable
+Source.cpp(57): warning C4101: 'received': unreferenced local variable
+Source.cpp(102): warning C4101: 'data': unreferenced local variable
+Source.cpp(55): warning C4101: 'connectionType': unreferenced local variable
+Source.cpp(56): warning C4101: 'buffer': unreferenced local variable
+  Generating code
+  1 of 292 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  GameClient.vcxproj -> C:\Users\Alumno\Downloads\AdriaGonzalez_AlexCalvo_Xarxes2\AdriaGonzalez_AlexCalvo_Xarxes\x64\Release\GameClient.exe

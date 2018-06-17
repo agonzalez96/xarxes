@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 
-#define NUM_PLAYERS 4
+#define NUM_PLAYERS 3
 
 using namespace sf;
 using namespace std;

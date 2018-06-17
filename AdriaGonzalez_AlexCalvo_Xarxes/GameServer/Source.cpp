@@ -13,10 +13,8 @@ void receiveData(TcpSocket* socket, vector<string>* aMensajes) {
 		}
 		else if (status_r == Socket::Done)
 		{
-			for (int i = 0; i < NUM_PLAYERS; i++) {
-				infoPack >> str;
-				aMensajes->push_back(str);
-			}
+			infoPack >> str;
+			aMensajes->push_back(str);
 
 		}
 	}
@@ -43,7 +41,8 @@ int main()
 	bool numbers = false;
 	bool ended = false;
 	Packet name, login;
-	Packet start; 
+	Packet start;
+	start << 2;
 	start << "Escolliu si el numero sera parell o imparell:";
 
 	//getPort
@@ -76,7 +75,7 @@ int main()
 					{
 						cout << "new client from port: " << client->getRemotePort() << endl;
 						aSockets.push_back(client);
-						
+
 						Player player;
 						player.clientsocket = client;
 
@@ -94,7 +93,7 @@ int main()
 
 							player.playername = clientName;
 							aPlayers.push_back(player);
-						
+
 
 							cout << newLogin;
 
@@ -112,7 +111,7 @@ int main()
 									client2.send(data, 1);
 									client2.send(start);
 								}
-								
+
 							}
 							selector.add(*client);
 						}
@@ -129,16 +128,15 @@ int main()
 				if (!setUp) {
 					string init, init2;
 					Packet temp;
-
+					temp << 1;
 					for (vector<Player>::iterator it = aPlayers.begin(); it != aPlayers.end(); ++it)
 					{
 						TcpSocket& client2 = *it->clientsocket;
 						//temp << 0;
 						for (int j = 0; j < NUM_PLAYERS; j++) {
-							login >> init;
-							init2 += init;
-							//	cout << init2;
-							temp << init;
+							string tempString;
+							tempString = aPlayers[j].playername + " has joined the game";
+							temp << tempString;
 						}
 						client2.send(temp);
 					}
@@ -152,12 +150,14 @@ int main()
 
 					if (selector.isReady(client))
 					{
-						Packet packet;
+						Packet packet, packet2, chatMess;
 						status = client.receive(packet);
 						Packet nextfase;
+						nextfase << 2;
 						nextfase << "Ara dieu un numero de 1 a 5";
 						Packet winers;
 						Packet end;
+						end << 2;
 						//end << "end";
 						string win;
 						string messageComplete;
@@ -179,7 +179,7 @@ int main()
 							if (it1->voted == NO_VOTE) {
 
 								if (logout == " " + nickname + " >parell") {
-									
+
 									_start += 1;
 									it1->voted = PAR;
 								}
@@ -189,13 +189,25 @@ int main()
 									_start += 1;
 									it1->voted = IMPAR;
 								}
-
+								else {
+									chatMess << 2;
+									chatMess << logout;
+								}
 							}
 							if (_start == NUM_PLAYERS) {
 								//un cop ha votat(fer que sigui que han votat tots);
 								//client.send(nextfase);
 								// per cada jugador diu el numero que vol apostar de 1 a 5//
-								numbers = true;
+								if (!sended) {
+									for (vector<Player>::iterator it2 = aPlayers.begin(); it2 != aPlayers.end(); ++it2)
+									{
+										TcpSocket& client2 = *it2->clientsocket;
+										client2.send(nextfase);
+									}
+									sended = true;
+								}
+								
+								
 								if (!it1->numbervote) {
 									//client.send(nextfase);
 									if (logout == " " + nickname + " >1") {
@@ -232,10 +244,17 @@ int main()
 										_numvotes += 1;
 										it1->numbervote = true;
 									}
+									else {
+										chatMess << 2;
+										chatMess << logout;
+									}
 								}
 								if (_numvotes == NUM_PLAYERS) {
+									
+
 									for (vector<Player>::iterator it3 = aPlayers.begin(); it3 != aPlayers.end(); ++it3)
 									{
+
 										if (number % 2 == 0) {
 											//client.send(end);
 
@@ -253,8 +272,16 @@ int main()
 												it3->points += 1;
 											}
 											//end << "El numero es parell: " + to_string(number) + "winers:" + win;
-											ended = true;
 										}
+									}
+									if (!sended2) {
+										for (vector<Player>::iterator it2 = aPlayers.begin(); it2 != aPlayers.end(); ++it2)
+										{
+											TcpSocket& client2 = *it2->clientsocket;
+											end << "El numero es parell: " + to_string(number) + ", Winers: " + win;
+											client2.send(end);
+										}
+										sended2 = true;
 									}
 								}
 							}
@@ -282,38 +309,21 @@ int main()
 								if (it1 != it2) {
 
 									if (!num) {
-										client2.send(packet);
-									} 
+										client2.send(chatMess);
+									}
+
+
+
 									else {
 										Packet votedpack;
+										votedpack << 2;
 										votedpack << it1->playername + " is done ";
 										client2.send(votedpack);
 										//num = false;
 									}
-									
+
 									// envia a tots els jugadors el misatge nomes una vegada
-									
 
-									if (!sended && numbers){
-											client.send(nextfase);
-											client2.send(nextfase);
-											sended = true;
-											numbers = false;
-									}
-
-									if (ended && !sended2) {
-										end << "El numero es parell: " + to_string(number) + ", Winers: " + win;
-										client.send(end);
-										client2.send(end);
-										sended2 = true;
-										ended = false;
-									}
-									/*
-									if (!gamestart) {
-										client.send(start);
-										client2.send(start);
-										gamestart = true;
-									}*/
 								}
 
 							}
