@@ -33,10 +33,18 @@ int main()
 	vector <Player> aPlayers;
 	sf::TcpListener listener;
 	int _start = 0;
+	int _numvotes = 0;
 	char data[1];
 	bool setUp = false;
 	bool num = false;
+	bool gamestart = false;
+	bool sended = false;
+	bool sended2 = false;
+	bool numbers = false;
+	bool ended = false;
 	Packet name, login;
+	Packet start; 
+	start << "Escolliu si el numero sera parell o imparell:";
 
 	//getPort
 	//get IP
@@ -91,11 +99,10 @@ int main()
 							cout << newLogin;
 
 							login << newLogin;
-							
+
 							for (vector<Player>::iterator it2 = aPlayers.begin(); it2 != aPlayers.end(); ++it2)
 							{
 								TcpSocket& client2 = *it2->clientsocket;
-								Packet start;
 								if (i < NUM_PLAYERS) {
 									data[0] = 0;
 									client2.send(data, 1);
@@ -103,7 +110,9 @@ int main()
 								else {
 									data[0] = 1;
 									client2.send(data, 1);
+									client2.send(start);
 								}
+								
 							}
 							selector.add(*client);
 						}
@@ -145,7 +154,12 @@ int main()
 					{
 						Packet packet;
 						status = client.receive(packet);
-
+						Packet nextfase;
+						nextfase << "Ara dieu un numero de 1 a 5";
+						Packet winers;
+						Packet end;
+						//end << "end";
+						string win;
 						string messageComplete;
 						string logOutKey = "logOut_";
 						string userNameLogOut;
@@ -162,46 +176,89 @@ int main()
 							bool key = false;
 							cout << logout;
 							//per cada jugador escull parell o imparell//
-							if (it1->voted = NO_VOTE) {
-								if (logout == " " + nickname + ">parell") {
-									it1->voted = PAR;
+							if (it1->voted == NO_VOTE) {
 
+								if (logout == " " + nickname + " >parell") {
+									
+									_start += 1;
+									it1->voted = PAR;
 								}
 
 								if (logout == " " + nickname + " >imparell") {
+									//client.send(nextfase);
+									_start += 1;
 									it1->voted = IMPAR;
 								}
+
 							}
-							else {
+							if (_start == NUM_PLAYERS) {
 								//un cop ha votat(fer que sigui que han votat tots);
-
+								//client.send(nextfase);
 								// per cada jugador diu el numero que vol apostar de 1 a 5//
+								numbers = true;
+								if (!it1->numbervote) {
+									//client.send(nextfase);
+									if (logout == " " + nickname + " >1") {
+										number += 1;
+										num = true;
+										_numvotes += 1;
+										it1->numbervote = true;
+									}
 
-								if (logout == " " + nickname + " >1") {
-									number += 1;
-									num = true;
+									if (logout == " " + nickname + " >2") {
+										number += 2;
+										num = true;
+										_numvotes += 1;
+										it1->numbervote = true;
+									}
+
+									if (logout == " " + nickname + " >3") {
+										number += 3;
+										num = true;
+										_numvotes += 1;
+										it1->numbervote = true;
+									}
+
+									if (logout == " " + nickname + " >4") {
+										number += 4;
+										num = true;
+										_numvotes += 1;
+										it1->numbervote = true;
+									}
+
+									if (logout == " " + nickname + " >5") {
+										number += 5;
+										num = true;
+										_numvotes += 1;
+										it1->numbervote = true;
+									}
 								}
+								if (_numvotes == NUM_PLAYERS) {
+									for (vector<Player>::iterator it3 = aPlayers.begin(); it3 != aPlayers.end(); ++it3)
+									{
+										if (number % 2 == 0) {
+											//client.send(end);
 
-								if (logout == " " + nickname + " >2") {
-									number += 2;
-									num = true;
-								}
+											if (it3->voted == PAR) {
+												win += it3->playername + " ";
+												it3->points += 1;
+											}
+											//end << "El numero es parell: " + to_string(number) + "winers:" + win ;
+											ended = true;
+										}
+										if (number % 2 != 0) {
 
-								if (logout == " " + nickname + " >3") {
-									number += 3;
-									num = true;
-								}
-
-								if (logout == " " + nickname + " >4") {
-									number += 4;
-									num = true;
-								}
-
-								if (logout == " " + nickname + " >5") {
-									number += 5;
-									num = true;
+											if (it3->voted == IMPAR) {
+												win += it3->playername + " ";
+												it3->points += 1;
+											}
+											//end << "El numero es parell: " + to_string(number) + "winers:" + win;
+											ended = true;
+										}
+									}
 								}
 							}
+
 							//quan tots hagin votat i dit numero s'hauria de comprovar i sumar un punt, al arribar a 3 s'acaba la partida 
 							for (int i = 0; i < logout.length(); i++)
 							{
@@ -223,18 +280,44 @@ int main()
 								TcpSocket& client2 = *it2->clientsocket;
 								//si num es true envia a la resta unicament que ha votat
 								if (it1 != it2) {
+
 									if (!num) {
 										client2.send(packet);
-									}
+									} 
 									else {
 										Packet votedpack;
 										votedpack << it1->playername + " is done ";
 										client2.send(votedpack);
-										num = false;
+										//num = false;
 									}
+									
+									// envia a tots els jugadors el misatge nomes una vegada
+									
+
+									if (!sended && numbers){
+											client.send(nextfase);
+											client2.send(nextfase);
+											sended = true;
+											numbers = false;
+									}
+
+									if (ended && !sended2) {
+										end << "El numero es parell: " + to_string(number) + ", Winers: " + win;
+										client.send(end);
+										client2.send(end);
+										sended2 = true;
+										ended = false;
+									}
+									/*
+									if (!gamestart) {
+										client.send(start);
+										client2.send(start);
+										gamestart = true;
+									}*/
 								}
 
 							}
+							num = false;
 						}
 						else if (status == Socket::Disconnected)
 						{

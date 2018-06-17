@@ -157,12 +157,6 @@ int main()
 						exit(0);
 					}
 
-					if (mensaje == " " + nickname + ">parell" || mensaje == " " + nickname + " >parell") {
-						std::cout << "Entra" << std::endl;
-						exit(0);
-					}
-
-
 					Socket::Status status2 = socket.send(packet);
 
 					if (status2 != Socket::Done)
